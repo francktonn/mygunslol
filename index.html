@@ -78,26 +78,8 @@
       <h1 class="username">grimpeaks</h1>
       <p class="bio" id="bio"></p>
 
-      <!-- AniList Stats -->
-      <div class="ani-stats" id="aniStats">
-        <div class="ani-stat">
-          <span class="ani-val" id="aniCount">—</span>
-          <span class="ani-lbl">Animés</span>
-        </div>
-        <div class="ani-div"></div>
-        <div class="ani-stat">
-          <span class="ani-val" id="aniScore">—</span>
-          <span class="ani-lbl">Score</span>
-        </div>
-        <div class="ani-div"></div>
-        <div class="ani-stat">
-          <span class="ani-val" id="aniEps">—</span>
-          <span class="ani-lbl">Épisodes</span>
-        </div>
-      </div>
-
-
-      <!-- Links -->
+      <!-- VIEW: Links -->
+      <div id="viewLinks">
       <div class="links">
 
         <a href="discord://-/users/1113172762127781898" class="lnk" aria-label="Discord — grimpeaks" data-copy="grimpeaks.">
@@ -113,7 +95,7 @@
           <div class="lnk-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
         </a>
 
-        <a href="https://anilist.co/user/Grimpeaks/" class="lnk" aria-label="AniList — Grimpeaks" target="_blank" rel="noopener noreferrer">
+        <a href="#" class="lnk" id="lnkAnilist" aria-label="AniList — Grimpeaks">
           <div class="lnk-ico ico-anilist">
             <svg viewBox="0 0 24 24" fill="#02a9ff">
               <path d="M6.361 2.943 0 21h4.942l1.077-3.133H11.4L12.45 21h5.1L11.16 2.943zM7.234 14.1l1.51-4.38 1.51 4.38z"/>
@@ -153,7 +135,48 @@
         </a>
 
       </div><!-- /links -->
+      </div><!-- /viewLinks -->
 
+      <!-- VIEW: AniList -->
+      <div id="viewAnilist">
+        <button id="backBtn" class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Retour
+        </button>
+        <div class="ani-view-header">
+          <div class="lnk-ico ico-anilist">
+            <svg viewBox="0 0 24 24" fill="#02a9ff">
+              <path d="M6.361 2.943 0 21h4.942l1.077-3.133H11.4L12.45 21h5.1L11.16 2.943zM7.234 14.1l1.51-4.38 1.51 4.38z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ani-view-title">Grimpeaks</div>
+            <div class="ani-view-sub">AniList</div>
+          </div>
+        </div>
+        <div class="ani-grid">
+          <div class="ani-box">
+            <span class="ani-val" id="aniCount">—</span>
+            <span class="ani-lbl">Animés</span>
+          </div>
+          <div class="ani-box">
+            <span class="ani-val" id="aniScore">—</span>
+            <span class="ani-lbl">Score moyen</span>
+          </div>
+          <div class="ani-box">
+            <span class="ani-val" id="aniEps">—</span>
+            <span class="ani-lbl">Épisodes</span>
+          </div>
+          <div class="ani-box">
+            <span class="ani-val" id="aniDays">—</span>
+            <span class="ani-lbl">Jours</span>
+          </div>
+        </div>
+        <a href="https://anilist.co/user/Grimpeaks/" class="ani-cta" target="_blank" rel="noopener noreferrer">
+          Voir le profil
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div><!-- /viewAnilist -->
 
     </div><!-- /card -->
   </div><!-- /wrap -->

@@ -335,7 +335,7 @@ const CFG = {
 
 /* ── ANILIST API ────────────────────────────────────── */
 (function () {
-  const q = `{ User(name: "${CFG.anilistUser}") { statistics { anime { count meanScore episodesWatched } } } }`;
+  const q = `{ User(name: "${CFG.anilistUser}") { statistics { anime { count meanScore episodesWatched minutesWatched } } } }`;
   fetch('https://graphql.anilist.co', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -348,14 +348,55 @@ const CFG = {
     const eps   = a.episodesWatched >= 1000
       ? (a.episodesWatched / 1000).toFixed(1) + 'k'
       : String(a.episodesWatched);
+    const days  = a.minutesWatched
+      ? (Math.round(a.minutesWatched / 60 / 24 * 10) / 10) + 'j'
+      : '—';
     document.getElementById('aniCount').textContent = a.count;
     document.getElementById('aniScore').textContent = score;
     document.getElementById('aniEps').textContent   = eps;
-    document.getElementById('aniStats').classList.add('loaded');
+    document.getElementById('aniDays').textContent  = days;
   })
-  .catch(() => {
-    document.getElementById('aniStats').classList.add('loaded');
+  .catch(() => {});
+})();
+
+/* ── ANILIST VIEW SWITCH ─────────────────────────────── */
+(function () {
+  const viewLinks   = document.getElementById('viewLinks');
+  const viewAnilist = document.getElementById('viewAnilist');
+  const lnkAnilist  = document.getElementById('lnkAnilist');
+  const backBtn     = document.getElementById('backBtn');
+  if (!viewLinks || !viewAnilist || !lnkAnilist || !backBtn) return;
+
+  function showAnilist() {
+    viewLinks.style.opacity = '0';
+    viewLinks.style.pointerEvents = 'none';
+    setTimeout(() => {
+      viewLinks.style.display = 'none';
+      viewAnilist.classList.add('ani-active');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        viewAnilist.classList.add('ani-visible');
+      }));
+    }, 270);
+  }
+
+  function showLinks() {
+    viewAnilist.classList.remove('ani-visible');
+    setTimeout(() => {
+      viewAnilist.classList.remove('ani-active');
+      viewLinks.style.display = '';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        viewLinks.style.opacity = '';
+        viewLinks.style.pointerEvents = '';
+      }));
+    }, 285);
+  }
+
+  lnkAnilist.addEventListener('click', e => {
+    e.preventDefault();
+    showAnilist();
   });
+
+  backBtn.addEventListener('click', showLinks);
 })();
 
 

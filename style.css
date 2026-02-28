@@ -288,31 +288,82 @@ body {
   text-transform: uppercase; min-height: 18px;
 }
 
-/* ── ANILIST STATS ───────────────────────────────────── */
-.ani-stats {
-  display: flex; align-items: stretch; justify-content: center;
-  margin-bottom: 14px;
-  background: rgba(2,169,255,.06);
-  border: 1px solid rgba(2,169,255,.16);
-  border-radius: 13px; padding: 9px 8px;
-  opacity: 0; transition: opacity .45s ease;
+/* ── VIEW PANELS ─────────────────────────────────────── */
+#viewLinks {
+  transition: opacity 260ms ease;
 }
-.ani-stats.loaded { opacity: 1; }
-.ani-stat {
-  display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1;
+#viewAnilist {
+  display: none;
+  opacity: 0;
+  transition: opacity 280ms ease;
 }
-.ani-val {
-  font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;
+#viewAnilist.ani-active  { display: block; }
+#viewAnilist.ani-visible { opacity: 1; }
+
+/* Back button */
+.back-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(180,140,255,.13);
+  border-radius: 10px; color: var(--c-muted);
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 500;
+  padding: 7px 13px; cursor: pointer; margin-bottom: 12px;
+  transition: background 180ms, border-color 180ms, color 180ms;
+}
+.back-btn:hover {
+  background: rgba(255,255,255,.09);
+  border-color: rgba(180,140,255,.28);
   color: var(--c-text);
 }
-.ani-lbl {
-  font-size: 9px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .9px; color: var(--c-dim);
+.back-btn svg { width: 13px; height: 13px; }
+
+/* AniList view header */
+.ani-view-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; margin-bottom: 11px;
+  background: rgba(2,169,255,.06); border: 1px solid rgba(2,169,255,.15);
+  border-radius: 13px;
 }
-.ani-div {
-  width: 1px; background: rgba(180,140,255,.14); margin: 4px 0; flex-shrink: 0;
+.ani-view-title {
+  font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+  color: var(--c-text);
+}
+.ani-view-sub { font-size: 11px; color: var(--c-dim); margin-top: 1px; }
+
+/* Stats grid 2×2 */
+.ani-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 11px;
+}
+.ani-box {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 12px 8px;
+  background: rgba(2,169,255,.05); border: 1px solid rgba(2,169,255,.12);
+  border-radius: 11px;
+}
+.ani-box .ani-val {
+  font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700;
+  color: var(--c-text);
+}
+.ani-box .ani-lbl {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--c-dim);
 }
 
+/* CTA link */
+.ani-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 11px 14px;
+  background: rgba(2,169,255,.12); border: 1px solid rgba(2,169,255,.25);
+  border-radius: 13px; text-decoration: none;
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+  color: #02a9ff;
+  transition: background 200ms, border-color 200ms, box-shadow 200ms;
+}
+.ani-cta:hover {
+  background: rgba(2,169,255,.20); border-color: rgba(2,169,255,.45);
+  box-shadow: 0 0 18px rgba(2,169,255,.18);
+}
+.ani-cta svg { width: 14px; height: 14px; }
 
 /* ── LINKS ──────────────────────────────────────────── */
 .links { display: flex; flex-direction: column; gap: 7px; }
