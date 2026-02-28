@@ -1,3 +1,13 @@
+/* ── CONFIG ─────────────────────────────────────────── */
+const CFG = {
+  bioText:      'Les liens utiles',
+  discordTag:   'grimpeaks.',
+  anilistUser:  'Grimpeaks',
+  // Spotify Now Playing : configurez un proxy qui renvoie { is_playing, track, artist }
+  // Exemple avec Vercel : déployez api/spotify.js et mettez l'URL ici
+  spotify: null,
+};
+
 /* ── PARTICLES ──────────────────────────────────────── */
 (function () {
   const c = document.getElementById('pts');
@@ -14,6 +24,70 @@
     `;
     c.appendChild(p);
   }
+})();
+
+/* ── TOAST ──────────────────────────────────────────── */
+(function () {
+  const el = document.getElementById('toast');
+  let _t;
+  window._showToast = function (msg) {
+    if (!el) return;
+    clearTimeout(_t);
+    el.textContent = msg;
+    el.classList.add('show');
+    _t = setTimeout(() => el.classList.remove('show'), 2400);
+  };
+})();
+
+/* ── TYPEWRITER BIO ─────────────────────────────────── */
+(function () {
+  const el = document.getElementById('bio');
+  if (!el) return;
+  const text = CFG.bioText;
+  let i = 0;
+  el.textContent = '';
+  setTimeout(function type() {
+    if (i < text.length) {
+      el.textContent += text[i++];
+      setTimeout(type, 55 + Math.random() * 35);
+    }
+  }, 950);
+})();
+
+/* ── REAL-TIME CLOCK ────────────────────────────────── */
+(function () {
+  const el = document.getElementById('clock');
+  if (!el) return;
+  function tick() {
+    const n = new Date();
+    const h = String(n.getHours()).padStart(2, '0');
+    const m = String(n.getMinutes()).padStart(2, '0');
+    const s = String(n.getSeconds()).padStart(2, '0');
+    el.textContent = `${h}:${m}:${s}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ── STAGGERED LINK REVEAL ──────────────────────────── */
+(function () {
+  document.querySelectorAll('.links .lnk').forEach((lnk, i) => {
+    setTimeout(() => lnk.classList.add('revealed'), 980 + i * 130);
+  });
+})();
+
+/* ── DISCORD COPY TOAST ─────────────────────────────── */
+(function () {
+  const lnk = document.querySelector('[data-copy]');
+  if (!lnk) return;
+  lnk.addEventListener('click', () => {
+    const tag = lnk.dataset.copy;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(tag)
+        .then(() => window._showToast('Tag Discord copié ! 📋'))
+        .catch(() => {});
+    }
+  });
 })();
 
 /* ── MUSIC PLAYER ───────────────────────────────────── */
@@ -41,7 +115,6 @@
     on ? art.classList.add('spinning') : art.classList.remove('spinning');
   }
 
-  // Mise à jour barre + temps en temps réel
   audio.addEventListener('timeupdate', () => {
     const t = audio.currentTime;
     const d = audio.duration || 0;
@@ -51,15 +124,12 @@
     cur.textContent = fmt(t);
   });
 
-  // Durée dispo après chargement des métadonnées
   audio.addEventListener('loadedmetadata', () => {
     if (dur) dur.textContent = fmt(audio.duration);
   });
 
-  // Fin du morceau
   audio.addEventListener('ended', () => setPlayingUI(false));
 
-  // Lance en muet dès que possible (autoplay muet = toujours autorisé)
   function bootAudio() {
     audio.volume = 0.01;
     audio.play().catch(() => {});
@@ -73,8 +143,6 @@
     });
   }
 
-  // Démute à la première interaction utilisateur (clic, touche, scroll)
-  // Si bootAudio a échoué (audio en pause), on relance ici avec geste utilisateur
   function onFirstInteraction() {
     audio.muted = false;
     audio.volume = 0.01;
@@ -91,7 +159,6 @@
     document.addEventListener(e, onFirstInteraction, { once: false, passive: true })
   );
 
-  // Play / Pause
   btnP.addEventListener('click', () => {
     if (audio.paused) {
       audio.play().then(() => setPlayingUI(true)).catch(() => {});
@@ -101,24 +168,20 @@
     }
   });
 
-  // Reculer 10s
   document.getElementById('btnPrev').addEventListener('click', () => {
     audio.currentTime = Math.max(0, audio.currentTime - 10);
   });
 
-  // Avancer 10s
   document.getElementById('btnNext').addEventListener('click', () => {
     audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10);
   });
 
-  // Clic sur la barre = seek
   bar.addEventListener('click', e => {
     if (!audio.duration) return;
     const r = bar.getBoundingClientRect();
     audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
   });
 
-  // Clavier sur la barre
   bar.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 5);
     if (e.key === 'ArrowLeft')  audio.currentTime = Math.max(0, audio.currentTime - 5);
@@ -126,7 +189,7 @@
 
 })();
 
-/* ── CUSTOM CURSOR ──────────────────────────────────── */
+/* ── CUSTOM CURSOR + TRAIL ──────────────────────────── */
 (function () {
   const dot  = document.getElementById('cur-dot');
   const ring = document.getElementById('cur-ring');
@@ -134,11 +197,27 @@
 
   let mx = -200, my = -200;
   let rx = -200, ry = -200;
+  let _lastTrail = 0;
+  const isFine = window.matchMedia('(pointer: fine)').matches;
+
+  function spawnTrail(x, y) {
+    if (!isFine) return;
+    const now = Date.now();
+    if (now - _lastTrail < 38) return;
+    _lastTrail = now;
+    const t = document.createElement('div');
+    t.className = 'cur-trail';
+    const s = Math.random() * 5 + 3;
+    t.style.cssText = `left:${x}px;top:${y}px;width:${s}px;height:${s}px;`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 580);
+  }
 
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
     dot.style.left = mx + 'px';
     dot.style.top  = my + 'px';
+    spawnTrail(mx, my);
   });
 
   (function loop() {
@@ -202,7 +281,6 @@
   const pct    = document.getElementById('vol-pct');
   const ico    = document.getElementById('volIco');
 
-  // SVG paths for the 3 icon states
   const ICONS = {
     high: `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
@@ -227,7 +305,6 @@
     updateIcon(v);
   }
 
-  // Toggle panel
   btn.addEventListener('click', e => {
     e.stopPropagation();
     const open = panel.classList.toggle('hidden');
@@ -235,7 +312,6 @@
     btn.classList.toggle('active', !open);
   });
 
-  // Close panel on outside click
   document.addEventListener('click', e => {
     if (!panel.classList.contains('hidden') &&
         !panel.contains(e.target) && e.target !== btn) {
@@ -245,21 +321,86 @@
     }
   });
 
-  // Slider input
   range.addEventListener('input', () => setVolume(range.value / 100));
 
-  // Molette sur le bouton
   btn.addEventListener('wheel', e => {
     e.preventDefault();
     setVolume(audio.volume + (e.deltaY < 0 ? 0.05 : -0.05));
   }, { passive: false });
 
-  // Molette sur le panel
   panel.addEventListener('wheel', e => {
     e.preventDefault();
     setVolume(audio.volume + (e.deltaY < 0 ? 0.05 : -0.05));
   }, { passive: false });
 
-  // Init à 1%
   setVolume(0.01);
+})();
+
+/* ── ANILIST API ────────────────────────────────────── */
+(function () {
+  const q = `{ User(name: "${CFG.anilistUser}") { statistics { anime { count meanScore episodesWatched } } } }`;
+  fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ query: q })
+  })
+  .then(r => r.json())
+  .then(d => {
+    const a = d.data.User.statistics.anime;
+    const score = a.meanScore ? (a.meanScore / 10).toFixed(1) : '—';
+    const eps   = a.episodesWatched >= 1000
+      ? (a.episodesWatched / 1000).toFixed(1) + 'k'
+      : String(a.episodesWatched);
+    document.getElementById('aniCount').textContent = a.count;
+    document.getElementById('aniScore').textContent = score;
+    document.getElementById('aniEps').textContent   = eps;
+    document.getElementById('aniStats').classList.add('loaded');
+  })
+  .catch(() => {
+    document.getElementById('aniStats').classList.add('loaded');
+  });
+})();
+
+/* ── SPOTIFY NOW PLAYING ────────────────────────────── */
+/* Nécessite un proxy côté serveur.
+   Configurez CFG.spotify avec l'URL de votre proxy.
+   Votre proxy doit retourner : { is_playing: bool, track: string, artist: string }
+   Exemple de proxy Vercel : voir api/spotify.js */
+(function () {
+  if (!CFG.spotify) return;
+  const el = document.getElementById('spNow');
+
+  function poll() {
+    fetch(CFG.spotify)
+      .then(r => r.json())
+      .then(d => {
+        if (d.is_playing) {
+          document.getElementById('spTrack').textContent  = d.track  || '—';
+          document.getElementById('spArtist').textContent = d.artist || '—';
+          el.classList.add('visible');
+        } else {
+          el.classList.remove('visible');
+        }
+      })
+      .catch(() => el.classList.remove('visible'));
+  }
+
+  poll();
+  setInterval(poll, 30000);
+})();
+
+/* ── VISITOR COUNTER ────────────────────────────────── */
+(function () {
+  const el  = document.getElementById('visitCount');
+  const num = document.getElementById('visitNum');
+  if (!el || !num) return;
+  fetch('https://api.counterapi.dev/v1/grimpeaks/mygunslol/up')
+    .then(r => r.json())
+    .then(d => {
+      if (d && typeof d.count === 'number') {
+        num.textContent = d.count.toLocaleString('fr-FR');
+        el.classList.add('visible');
+      }
+    })
+    .catch(() => {});
 })();
