@@ -389,18 +389,3 @@ const CFG = {
   setInterval(poll, 30000);
 })();
 
-/* ── VISITOR COUNTER ────────────────────────────────── */
-(function () {
-  const el  = document.getElementById('visitCount');
-  const num = document.getElementById('visitNum');
-  if (!el || !num) return;
-  fetch('https://api.counterapi.dev/v1/grimpeaks/mygunslol/up')
-    .then(r => r.json())
-    .then(d => {
-      if (d && typeof d.count === 'number') {
-        num.textContent = d.count.toLocaleString('fr-FR');
-        el.classList.add('visible');
-      }
-    })
-    .catch(() => {});
-})();

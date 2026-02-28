@@ -13,7 +13,7 @@
   --blur:          22px;
 }
 
-html, body { width: 100%; min-height: 100%; overflow-x: hidden; user-select: none; -webkit-user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; -webkit-user-select: none; }
 
 body {
   font-family: 'Work Sans', sans-serif;
@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100svh;
+  height: 100svh;
   position: relative;
 }
 
@@ -194,7 +194,7 @@ body {
 #wrap {
   position: relative; z-index: 10;
   width: 100%; max-width: 460px;
-  padding: 24px 20px 130px;
+  padding: 10px 20px 108px;
   animation: wrapIn .85s cubic-bezier(.16,1,.3,1) forwards;
   opacity: 0;
 }
@@ -209,7 +209,7 @@ body {
   backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
   border: 1px solid var(--c-border);
   border-radius: 26px;
-  padding: 42px 32px 32px;
+  padding: 24px 28px 22px;
   position: relative; overflow: hidden;
   box-shadow:
     0 30px 60px rgba(0,0,0,.55),
@@ -237,10 +237,10 @@ body {
 
 /* ── AVATAR ─────────────────────────────────────────── */
 .av-ring {
-  display: flex; justify-content: center; margin-bottom: 18px;
+  display: flex; justify-content: center; margin-bottom: 12px;
 }
 .av-outer {
-  position: relative; width: 96px; height: 96px;
+  position: relative; width: 82px; height: 82px;
 }
 .av-glow {
   position: absolute; inset: -6px; border-radius: 50%; z-index: 0;
@@ -252,7 +252,7 @@ body {
   position: absolute; inset: 3px; border-radius: 50%; z-index: 1;
   background: linear-gradient(135deg, #4c1d95, #312e81);
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 700;
+  font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 700;
   color: #fff; overflow: hidden;
   box-shadow: 0 0 0 2px var(--c-bg);
 }
@@ -277,24 +277,24 @@ body {
 
 /* ── USERNAME + BIO ─────────────────────────────────── */
 .username {
-  font-family: 'Outfit', sans-serif; font-size: 30px; font-weight: 700;
-  text-align: center; letter-spacing: -.6px; margin-bottom: 6px;
+  font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700;
+  text-align: center; letter-spacing: -.6px; margin-bottom: 4px;
   color: var(--c-text);
   text-shadow: 0 0 40px rgba(180,130,255,.5), 0 2px 12px rgba(0,0,0,.4);
 }
 .bio {
   text-align: center; font-size: 13px; font-weight: 400;
-  color: var(--c-dim); letter-spacing: .6px; margin-bottom: 22px;
+  color: var(--c-dim); letter-spacing: .6px; margin-bottom: 14px;
   text-transform: uppercase; min-height: 18px;
 }
 
 /* ── ANILIST STATS ───────────────────────────────────── */
 .ani-stats {
   display: flex; align-items: stretch; justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   background: rgba(2,169,255,.06);
   border: 1px solid rgba(2,169,255,.16);
-  border-radius: 13px; padding: 12px 8px;
+  border-radius: 13px; padding: 9px 8px;
   opacity: 0; transition: opacity .45s ease;
 }
 .ani-stats.loaded { opacity: 1; }
@@ -302,7 +302,7 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1;
 }
 .ani-val {
-  font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;
+  font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;
   color: var(--c-text);
 }
 .ani-lbl {
@@ -316,7 +316,7 @@ body {
 /* ── SPOTIFY NOW PLAYING ─────────────────────────────── */
 .sp-now {
   display: none; align-items: center; gap: 11px;
-  padding: 10px 14px; margin-bottom: 18px;
+  padding: 8px 12px; margin-bottom: 12px;
   background: rgba(29,185,84,.07);
   border: 1px solid rgba(29,185,84,.18);
   border-radius: 13px; overflow: hidden;
@@ -350,11 +350,11 @@ body {
 .sp-artist { font-size: 11px; color: var(--c-dim); margin-top: 1px; }
 
 /* ── LINKS ──────────────────────────────────────────── */
-.links { display: flex; flex-direction: column; gap: 10px; }
+.links { display: flex; flex-direction: column; gap: 7px; }
 
 .lnk {
   display: flex; align-items: center; gap: 14px;
-  padding: 13px 16px;
+  padding: 10px 14px;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(180,140,255,.12);
   border-radius: 15px; text-decoration: none;
@@ -500,9 +500,16 @@ body {
 
 /* ── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 480px) {
-  #wrap { padding: 16px 14px 120px; }
-  .card { padding: 34px 22px 28px; }
-  .username { font-size: 26px; }
+  #wrap { padding: 8px 12px 108px; }
+  .card { padding: 20px 18px 18px; }
+}
+
+/* Très petits écrans : réduction globale par scale */
+@media (max-height: 680px) {
+  #wrap { transform: scale(0.88); transform-origin: center center; }
+}
+@media (max-height: 580px) {
+  #wrap { transform: scale(0.78); transform-origin: center center; }
 }
 
 /* ── REDUCED MOTION ─────────────────────────────────── */
