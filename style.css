@@ -27,14 +27,21 @@ body {
   position: relative;
 }
 
+/* ── BACKGROUND IMAGE ───────────────────────────────── */
+#bg-img {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url('src/background.jpg') center / cover no-repeat;
+  filter: brightness(0.35) blur(1px);
+}
+
 /* ── BACKGROUND ─────────────────────────────────────── */
 #bg {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
     radial-gradient(ellipse 60% 50% at 15% 15%, rgba(100,40,180,.28) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 85% 80%, rgba(60,50,200,.22) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(20,8,50,.9)  0%, transparent 100%),
-    linear-gradient(160deg, #0b0917 0%, #120926 50%, #090d1f 100%);
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(20,8,50,.72) 0%, transparent 100%),
+    linear-gradient(160deg, rgba(11,9,23,.82) 0%, rgba(18,9,38,.82) 50%, rgba(9,13,31,.82) 100%);
   animation: bgPulse 12s ease-in-out infinite alternate;
 }
 @keyframes bgPulse {
