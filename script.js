@@ -5,6 +5,12 @@ const CFG = {
   anilistUser:  'Grimpeaks',
 };
 
+/* ── TRACKS ─────────────────────────────────────────── */
+const TRACKS = [
+  { src: 'src/dream.mp3',  title: '(Dream)',  artist: 'Salvia Palth', cover: 'src/cover.jpg'  },
+  // { src: 'src/track2.mp3', title: 'Titre 2', artist: 'Artiste',       cover: 'src/cover2.jpg' },
+];
+
 /* ── PARTICLES ──────────────────────────────────────── */
 (function () {
   const c = document.getElementById('pts');
@@ -184,6 +190,7 @@ const CFG = {
     if (e.key === 'ArrowLeft')  audio.currentTime = Math.max(0, audio.currentTime - 5);
   });
 
+  window._setPlayingUI = setPlayingUI;
 })();
 
 /* ── CUSTOM CURSOR + TRAIL ──────────────────────────── */
@@ -446,6 +453,80 @@ const CFG = {
     tabManga.classList.add('active');
     tabAnime.classList.remove('active');
     switchGrid(false);
+  });
+})();
+
+/* ── TRACK PANEL ─────────────────────────────────────── */
+(function () {
+  const plArt   = document.getElementById('plArt');
+  const panel   = document.getElementById('trackPanel');
+  const tpList  = document.getElementById('tpList');
+  const tpClose = document.getElementById('tpClose');
+  const audio   = document.getElementById('audio');
+  const plCover = document.getElementById('plCover');
+  if (!plArt || !panel || !tpList || TRACKS.length < 1) return;
+
+  let currentIdx = 0;
+
+  const NOTE_ICO = `<div class="tp-now"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>`;
+
+  /* build rows */
+  TRACKS.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'track-item' + (i === 0 ? ' tp-active' : '');
+    el.innerHTML = `
+      <img class="track-thumb" src="${t.cover}" alt="${t.title}" onerror="this.style.opacity='0'">
+      <div class="track-info">
+        <div class="track-name">${t.title}</div>
+        <div class="track-artist">${t.artist}</div>
+      </div>
+      ${i === 0 ? NOTE_ICO : ''}`;
+    el.addEventListener('click', () => switchTrack(i));
+    tpList.appendChild(el);
+  });
+
+  function switchTrack(idx) {
+    if (idx === currentIdx) { closePanel(); return; }
+    const t = TRACKS[idx];
+    const wasPlaying = !audio.paused;
+    audio.src = t.src;
+    audio.currentTime = 0;
+    plCover.src = t.cover;
+    plCover.style.opacity = '1';
+    document.querySelector('.pl-title').textContent  = t.title;
+    document.querySelector('.pl-artist').textContent = t.artist;
+
+    tpList.querySelectorAll('.track-item').forEach((el, i) => {
+      el.classList.toggle('tp-active', i === idx);
+      const ico = el.querySelector('.tp-now');
+      if (i === idx && !ico) el.insertAdjacentHTML('beforeend', NOTE_ICO);
+      else if (i !== idx && ico) ico.remove();
+    });
+
+    currentIdx = idx;
+    if (wasPlaying) {
+      audio.play().then(() => window._setPlayingUI(true)).catch(() => {});
+    } else {
+      window._setPlayingUI(false);
+    }
+    closePanel();
+  }
+
+  function openPanel()  { panel.classList.remove('tp-hidden'); }
+  function closePanel() { panel.classList.add('tp-hidden'); }
+
+  plArt.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.classList.contains('tp-hidden') ? openPanel() : closePanel();
+  });
+
+  if (tpClose) tpClose.addEventListener('click', closePanel);
+
+  document.addEventListener('click', e => {
+    if (!panel.classList.contains('tp-hidden') &&
+        !panel.contains(e.target) && !plArt.contains(e.target)) {
+      closePanel();
+    }
   });
 })();
 
