@@ -9,6 +9,7 @@ const CFG = {
 const TRACKS = [
   { src: 'src/dream.mp3',  title: '(Dream)',  artist: 'Salvia Palth', cover: 'src/cover.jpg'  },
   { src: 'src/pool-stripped.mp3', title: 'Pool Stripped', artist: 'Samia', cover: 'src/cover2.jpg' },
+  { src: 'src/My-Love-Mine-All-Mine.mp3', title: 'My Love Mine All Mine', artist: 'Mitski', cover: 'src/cover3.jpg' },
 ];
 
 /* ── PARTICLES ──────────────────────────────────────── */
