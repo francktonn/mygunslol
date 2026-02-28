@@ -335,7 +335,10 @@ const CFG = {
 
 /* ── ANILIST API ────────────────────────────────────── */
 (function () {
-  const q = `{ User(name: "${CFG.anilistUser}") { statistics { anime { count meanScore episodesWatched minutesWatched } } } }`;
+  const q = `{ User(name: "${CFG.anilistUser}") { statistics {
+    anime { count meanScore episodesWatched minutesWatched }
+    manga { count meanScore chaptersRead volumesRead }
+  } } }`;
   fetch('https://graphql.anilist.co', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -343,30 +346,49 @@ const CFG = {
   })
   .then(r => r.json())
   .then(d => {
-    const a = d.data.User.statistics.anime;
-    const score = a.meanScore ? (a.meanScore / 10).toFixed(1) : '—';
-    const eps   = a.episodesWatched >= 1000
+    const s = d.data.User.statistics;
+    const a = s.anime;
+    const m = s.manga;
+
+    /* anime */
+    const aScore = a.meanScore ? (a.meanScore / 10).toFixed(1) : '—';
+    const aEps   = a.episodesWatched >= 1000
       ? (a.episodesWatched / 1000).toFixed(1) + 'k'
       : String(a.episodesWatched);
-    const days  = a.minutesWatched
+    const aDays  = a.minutesWatched
       ? (Math.round(a.minutesWatched / 60 / 24 * 10) / 10) + 'j'
       : '—';
     document.getElementById('aniCount').textContent = a.count;
-    document.getElementById('aniScore').textContent = score;
-    document.getElementById('aniEps').textContent   = eps;
-    document.getElementById('aniDays').textContent  = days;
+    document.getElementById('aniScore').textContent = aScore;
+    document.getElementById('aniEps').textContent   = aEps;
+    document.getElementById('aniDays').textContent  = aDays;
+
+    /* manga */
+    const mScore = m.meanScore ? (m.meanScore / 10).toFixed(1) : '—';
+    const mChaps = m.chaptersRead >= 1000
+      ? (m.chaptersRead / 1000).toFixed(1) + 'k'
+      : String(m.chaptersRead);
+    document.getElementById('mangaCount').textContent = m.count;
+    document.getElementById('mangaScore').textContent = mScore;
+    document.getElementById('mangaChaps').textContent = mChaps;
+    document.getElementById('mangaVols').textContent  = m.volumesRead;
   })
   .catch(() => {});
 })();
 
-/* ── ANILIST VIEW SWITCH ─────────────────────────────── */
+/* ── ANILIST VIEW SWITCH + TABS ─────────────────────── */
 (function () {
   const viewLinks   = document.getElementById('viewLinks');
   const viewAnilist = document.getElementById('viewAnilist');
   const lnkAnilist  = document.getElementById('lnkAnilist');
   const backBtn     = document.getElementById('backBtn');
+  const tabAnime    = document.getElementById('tabAnime');
+  const tabManga    = document.getElementById('tabManga');
+  const gridAnime   = document.getElementById('gridAnime');
+  const gridManga   = document.getElementById('gridManga');
   if (!viewLinks || !viewAnilist || !lnkAnilist || !backBtn) return;
 
+  /* ── view transitions ── */
   function showAnilist() {
     viewLinks.style.opacity = '0';
     viewLinks.style.pointerEvents = 'none';
@@ -395,8 +417,36 @@ const CFG = {
     e.preventDefault();
     showAnilist();
   });
-
   backBtn.addEventListener('click', showLinks);
+
+  /* ── tab switching ── */
+  function switchGrid(showAnime) {
+    const hide = showAnime ? gridManga : gridAnime;
+    const show = showAnime ? gridAnime : gridManga;
+    hide.style.opacity = '0';
+    setTimeout(() => {
+      hide.style.display = 'none';
+      show.style.display = '';
+      show.style.opacity = '0';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        show.style.opacity = '1';
+      }));
+    }, 185);
+  }
+
+  tabAnime.addEventListener('click', () => {
+    if (tabAnime.classList.contains('active')) return;
+    tabAnime.classList.add('active');
+    tabManga.classList.remove('active');
+    switchGrid(true);
+  });
+
+  tabManga.addEventListener('click', () => {
+    if (tabManga.classList.contains('active')) return;
+    tabManga.classList.add('active');
+    tabAnime.classList.remove('active');
+    switchGrid(false);
+  });
 })();
 
 

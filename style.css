@@ -329,10 +329,32 @@ body {
 }
 .ani-view-sub { font-size: 11px; color: var(--c-dim); margin-top: 1px; }
 
+/* Tabs */
+.ani-tabs {
+  display: flex; gap: 6px; margin-bottom: 10px;
+}
+.ani-tab {
+  flex: 1; padding: 7px 10px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(180,140,255,.12);
+  border-radius: 9px; color: var(--c-dim);
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms, border-color 180ms, color 180ms;
+}
+.ani-tab.active {
+  background: rgba(157,103,255,.2); border-color: rgba(157,103,255,.42);
+  color: var(--c-text);
+}
+.ani-tab:not(.active):hover {
+  background: rgba(255,255,255,.07); border-color: rgba(180,140,255,.22);
+  color: var(--c-muted);
+}
+
 /* Stats grid 2×2 */
 .ani-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; margin-bottom: 11px;
+  transition: opacity 180ms ease;
 }
 .ani-box {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
