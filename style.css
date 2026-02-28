@@ -313,41 +313,6 @@ body {
   width: 1px; background: rgba(180,140,255,.14); margin: 4px 0; flex-shrink: 0;
 }
 
-/* ── SPOTIFY NOW PLAYING ─────────────────────────────── */
-.sp-now {
-  display: none; align-items: center; gap: 11px;
-  padding: 8px 12px; margin-bottom: 12px;
-  background: rgba(29,185,84,.07);
-  border: 1px solid rgba(29,185,84,.18);
-  border-radius: 13px; overflow: hidden;
-}
-.sp-now.visible { display: flex; }
-.sp-eq {
-  display: flex; gap: 2px; align-items: flex-end;
-  height: 14px; flex-shrink: 0;
-}
-.sp-eq span {
-  width: 3px; border-radius: 1.5px; background: #1db954;
-  animation: eqBounce .8s ease-in-out infinite;
-}
-.sp-eq span:nth-child(1) { height: 6px;  animation-delay: 0s; }
-.sp-eq span:nth-child(2) { height: 14px; animation-delay: .18s; }
-.sp-eq span:nth-child(3) { height: 9px;  animation-delay: .36s; }
-@keyframes eqBounce {
-  0%,100% { transform: scaleY(.5); }
-  50%      { transform: scaleY(1.1); }
-}
-.sp-ico svg { width: 20px; height: 20px; flex-shrink: 0; }
-.sp-info { flex: 1; min-width: 0; }
-.sp-lbl {
-  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-  color: #1db954; margin-bottom: 2px;
-}
-.sp-track {
-  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
-  color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sp-artist { font-size: 11px; color: var(--c-dim); margin-top: 1px; }
 
 /* ── LINKS ──────────────────────────────────────────── */
 .links { display: flex; flex-direction: column; gap: 7px; }
@@ -517,7 +482,6 @@ body {
   .orb-a,.orb-b,.orb-c,.pt,#bg,.av-glow { animation: none; }
   #wrap, #player { animation: none; opacity: 1; }
   .status-dot { animation: none; }
-  .sp-eq span { animation: none; }
 }
 
 /* ── CUSTOM CURSOR ───────────────────────────────────── */

@@ -3,9 +3,6 @@ const CFG = {
   bioText:      'Les liens utiles',
   discordTag:   'grimpeaks.',
   anilistUser:  'Grimpeaks',
-  // Spotify Now Playing : configurez un proxy qui renvoie { is_playing, track, artist }
-  // Exemple avec Vercel : déployez api/spotify.js et mettez l'URL ici
-  spotify: null,
 };
 
 /* ── PARTICLES ──────────────────────────────────────── */
@@ -361,31 +358,4 @@ const CFG = {
   });
 })();
 
-/* ── SPOTIFY NOW PLAYING ────────────────────────────── */
-/* Nécessite un proxy côté serveur.
-   Configurez CFG.spotify avec l'URL de votre proxy.
-   Votre proxy doit retourner : { is_playing: bool, track: string, artist: string }
-   Exemple de proxy Vercel : voir api/spotify.js */
-(function () {
-  if (!CFG.spotify) return;
-  const el = document.getElementById('spNow');
-
-  function poll() {
-    fetch(CFG.spotify)
-      .then(r => r.json())
-      .then(d => {
-        if (d.is_playing) {
-          document.getElementById('spTrack').textContent  = d.track  || '—';
-          document.getElementById('spArtist').textContent = d.artist || '—';
-          el.classList.add('visible');
-        } else {
-          el.classList.remove('visible');
-        }
-      })
-      .catch(() => el.classList.remove('visible'));
-  }
-
-  poll();
-  setInterval(poll, 30000);
-})();
 
