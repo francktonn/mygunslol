@@ -8,7 +8,7 @@ const CFG = {
 /* ── TRACKS ─────────────────────────────────────────── */
 const TRACKS = [
   { src: 'src/dream.mp3',  title: '(Dream)',  artist: 'Salvia Palth', cover: 'src/cover.jpg'  },
-  // { src: 'src/track2.mp3', title: 'Titre 2', artist: 'Artiste',       cover: 'src/cover2.jpg' },
+  { src: 'src/pool-stripped.mp3', title: 'Pool Stripped', artist: 'Samia', cover: 'src/cover2.jpg' },
 ];
 
 /* ── PARTICLES ──────────────────────────────────────── */
