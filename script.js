@@ -59,21 +59,37 @@
   // Fin du morceau
   audio.addEventListener('ended', () => setPlayingUI(false));
 
-  // Démute + lance à 1%
-  function startAudio() {
-    audio.muted  = false;
+  // Lance en muet dès que possible (autoplay muet = toujours autorisé)
+  function bootAudio() {
     audio.volume = 0.01;
-    audio.play().then(() => setPlayingUI(true)).catch(() => {});
+    audio.play().catch(() => {});
   }
-  // canplay a peut-être déjà tiré → on vérifie readyState immédiatement
   if (audio.readyState >= 3) {
-    startAudio();
+    bootAudio();
   } else {
     audio.addEventListener('canplay', function start() {
-      startAudio();
+      bootAudio();
       audio.removeEventListener('canplay', start);
     });
   }
+
+  // Démute à la première interaction utilisateur (clic, touche, scroll)
+  // Si bootAudio a échoué (audio en pause), on relance ici avec geste utilisateur
+  function onFirstInteraction() {
+    audio.muted = false;
+    audio.volume = 0.01;
+    if (audio.paused) {
+      audio.play().then(() => setPlayingUI(true)).catch(() => {});
+    } else {
+      setPlayingUI(true);
+    }
+    ['click','keydown','touchstart','scroll'].forEach(e =>
+      document.removeEventListener(e, onFirstInteraction)
+    );
+  }
+  ['click','keydown','touchstart','scroll'].forEach(e =>
+    document.addEventListener(e, onFirstInteraction, { once: false, passive: true })
+  );
 
   // Play / Pause
   btnP.addEventListener('click', () => {
