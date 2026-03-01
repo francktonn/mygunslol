@@ -210,7 +210,7 @@ body {
   border: 1px solid var(--c-border);
   border-radius: 26px;
   padding: 24px 28px 22px;
-  position: relative; overflow: hidden;
+  position: relative; overflow: clip;
   box-shadow:
     0 30px 60px rgba(0,0,0,.55),
     0 0 0 1px rgba(255,255,255,.04) inset,
@@ -378,10 +378,12 @@ body {
 /* ── FAVORITES ───────────────────────────────────────── */
 .fav-scroll {
   display: flex; gap: 7px;
-  overflow-x: auto; overflow-y: visible;
+  overflow-x: auto; overflow-y: hidden;
   padding-bottom: 4px; margin-bottom: 6px;
   min-height: 108px;
   scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
 }
 .fav-scroll::-webkit-scrollbar { display: none; }
 
