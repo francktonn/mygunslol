@@ -428,6 +428,77 @@ body {
   margin-top: -2px;
 }
 
+/* ── ANILIST MEDIA MODAL ─────────────────────────────── */
+#aniModal {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity 220ms ease;
+}
+#aniModal.visible { opacity: 1; }
+
+.ani-modal {
+  position: relative;
+  background: rgba(18, 8, 38, 0.97);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  width: 100%; max-width: 400px;
+  max-height: 82vh;
+  overflow-y: auto; scrollbar-width: none;
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+.ani-modal::-webkit-scrollbar { display: none; }
+
+.ani-modal-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,.06); border: none; border-radius: 50%;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-muted); cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+.ani-modal-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+.ani-modal-close svg { width: 14px; height: 14px; }
+
+.ani-modal-top {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding-right: 24px;
+}
+.ani-modal-cover {
+  flex-shrink: 0; width: 86px; aspect-ratio: 2/3;
+  border-radius: 10px; object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+.ani-modal-info {
+  display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.ani-modal-title {
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--c-text); line-height: 1.3;
+}
+.ani-modal-meta {
+  font-family: 'Outfit', sans-serif; font-size: 11px;
+  color: var(--c-dim); line-height: 1.4;
+}
+.ani-modal-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 500;
+  color: var(--c-accent); text-decoration: none;
+  transition: color 150ms;
+}
+.ani-modal-link:hover { color: var(--c-accent2); }
+.ani-modal-synopsis {
+  font-family: 'Work Sans', sans-serif; font-size: 11.5px;
+  color: var(--c-muted); line-height: 1.65;
+  border-top: 1px solid var(--c-border);
+  padding-top: 12px;
+}
+
 /* CTA link */
 .ani-cta {
   display: flex; align-items: center; justify-content: center; gap: 8px;

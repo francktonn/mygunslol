@@ -386,16 +386,16 @@ const TRACKS = [
         manga { count meanScore chaptersRead volumesRead }
       }
       favourites {
-        anime      { nodes { id title { romaji english } coverImage { medium } } }
-        manga      { nodes { id title { romaji english } coverImage { medium } } }
+        anime      { nodes { id title { romaji english } coverImage { medium large } description episodes } }
+        manga      { nodes { id title { romaji english } coverImage { medium large } description chapters volumes } }
         characters { nodes { id name { full } image { medium } } }
       }
     }
     currentAnime: MediaListCollection(userName: "${CFG.anilistUser}", type: ANIME, status: CURRENT) {
-      lists { entries { media { id title { romaji english } coverImage { medium } } progress } }
+      lists { entries { media { id title { romaji english } coverImage { medium large } description episodes } progress score } }
     }
     currentManga: MediaListCollection(userName: "${CFG.anilistUser}", type: MANGA, status: CURRENT) {
-      lists { entries { media { id title { romaji english } coverImage { medium } } progress } }
+      lists { entries { media { id title { romaji english } coverImage { medium large } description chapters volumes } progress score } }
     }
     allAnimeScores: MediaListCollection(userName: "${CFG.anilistUser}", type: ANIME) {
       lists { entries { mediaId score } }
@@ -440,7 +440,8 @@ const TRACKS = [
       const scoreBadge = (score && type !== 'character')
         ? `<div class="fav-score">★ ${score}</div>`
         : '';
-      return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
+      const dataAttrs = type !== 'character' ? `data-mid="${n.id}" data-mtype="${type}"` : '';
+      return `<a href="${url}" class="fav-card" ${dataAttrs} target="_blank" rel="noopener noreferrer" title="${name}">
         <img class="${cls}" src="${img}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
         ${scoreBadge}
         <div class="fav-name">${name}</div>
@@ -460,7 +461,7 @@ const TRACKS = [
       const name = m.title.romaji || m.title.english || '';
       const url  = `https://anilist.co/${type}/${m.id}`;
       const prog = type === 'anime' ? `Ép. ${e.progress}` : `Ch. ${e.progress}`;
-      return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
+      return `<a href="${url}" class="fav-card" data-mid="${m.id}" data-mtype="${type}" target="_blank" rel="noopener noreferrer" title="${name}">
         <img class="fav-cover" src="${m.coverImage.medium}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
         <div class="fav-prog">${prog}</div>
         <div class="fav-name">${name}</div>
@@ -514,6 +515,35 @@ const TRACKS = [
     const flatEntries = col => col ? col.lists.flatMap(l => l.entries) : [];
     renderCurrent(flatEntries(d.data.currentAnime), 'curAnime', 'anime');
     renderCurrent(flatEntries(d.data.currentManga), 'curManga', 'manga');
+
+    /* populate media store for modal */
+    window._aniMedia = new Map();
+    f.anime.nodes.forEach(n => window._aniMedia.set(`anime-${n.id}`, {
+      type: 'anime', title: n.title.romaji || n.title.english,
+      coverLarge: n.coverImage.large, description: n.description,
+      episodes: n.episodes, score: animeScoreMap.get(n.id) || 0,
+    }));
+    f.manga.nodes.forEach(n => window._aniMedia.set(`manga-${n.id}`, {
+      type: 'manga', title: n.title.romaji || n.title.english,
+      coverLarge: n.coverImage.large, description: n.description,
+      chapters: n.chapters, volumes: n.volumes, score: mangaScoreMap.get(n.id) || 0,
+    }));
+    flatEntries(d.data.currentAnime).forEach(e => {
+      const m = e.media;
+      window._aniMedia.set(`anime-${m.id}`, {
+        type: 'anime', title: m.title.romaji || m.title.english,
+        coverLarge: m.coverImage.large, description: m.description,
+        episodes: m.episodes, progress: e.progress, score: e.score || 0,
+      });
+    });
+    flatEntries(d.data.currentManga).forEach(e => {
+      const m = e.media;
+      window._aniMedia.set(`manga-${m.id}`, {
+        type: 'manga', title: m.title.romaji || m.title.english,
+        coverLarge: m.coverImage.large, description: m.description,
+        chapters: m.chapters, volumes: m.volumes, progress: e.progress, score: e.score || 0,
+      });
+    });
   })
   .catch(() => {
     ['favAnime','favManga','favChara','curAnime','curManga'].forEach(id => {
@@ -633,6 +663,88 @@ const TRACKS = [
       if (current) fadeSwap(current, favPanels[i]);
       else { favPanels[i].style.display = ''; favPanels[i].style.opacity = '1'; }
     });
+  });
+})();
+
+/* ── ANILIST MEDIA MODAL ─────────────────────────────── */
+(function () {
+  const overlay  = document.getElementById('aniModal');
+  const coverEl  = document.getElementById('aniModalCover');
+  const titleEl  = document.getElementById('aniModalTitle');
+  const metaEl   = document.getElementById('aniModalMeta');
+  const synEl    = document.getElementById('aniModalSynopsis');
+  const linkEl   = document.getElementById('aniModalLink');
+  const closeBtn = document.getElementById('aniModalClose');
+  if (!overlay) return;
+
+  const _cache = new Map();
+
+  function stripHtml(html) {
+    return (html || '')
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&[^;]+;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  async function translateFR(text) {
+    if (!text) return '';
+    if (_cache.has(text)) return _cache.get(text);
+    try {
+      const r = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 900))}&langpair=en|fr`
+      );
+      const d = await r.json();
+      const out = d.responseData?.translatedText || text;
+      _cache.set(text, out);
+      return out;
+    } catch { return text; }
+  }
+
+  function openModal(mid, mtype) {
+    const data = window._aniMedia && window._aniMedia.get(`${mtype}-${mid}`);
+    if (!data) return;
+
+    coverEl.src = data.coverLarge || '';
+    coverEl.alt = data.title;
+    titleEl.textContent = data.title;
+
+    const meta = [];
+    if (data.score)    meta.push(`★ ${data.score}`);
+    if (data.episodes) meta.push(`${data.episodes} épisodes`);
+    if (data.chapters) meta.push(`${data.chapters} chapitres`);
+    if (data.volumes)  meta.push(`${data.volumes} volumes`);
+    if (data.progress !== undefined)
+      meta.push(`En cours · ${mtype === 'anime' ? 'Ép.' : 'Ch.'} ${data.progress}`);
+    metaEl.textContent = meta.join(' · ');
+
+    linkEl.href = `https://anilist.co/${mtype}/${mid}`;
+
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+
+    const raw = stripHtml(data.description);
+    if (!raw) { synEl.textContent = 'Aucun synopsis disponible.'; return; }
+    synEl.textContent = 'Traduction en cours…';
+    translateFR(raw).then(t => { synEl.textContent = t; });
+  }
+
+  function closeModal() {
+    overlay.classList.remove('visible');
+    setTimeout(() => { overlay.style.display = 'none'; }, 220);
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* event delegation sur toutes les fav-scroll */
+  document.addEventListener('click', e => {
+    const card = e.target.closest('[data-mid][data-mtype]');
+    if (!card) return;
+    e.preventDefault();
+    openModal(card.dataset.mid, card.dataset.mtype);
   });
 })();
 

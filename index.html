@@ -292,6 +292,27 @@
     <div id="tpList"></div>
   </div>
 
+  <!-- ANILIST MEDIA MODAL -->
+  <div id="aniModal" role="dialog" aria-modal="true" aria-label="Détail de l'œuvre" style="display:none">
+    <div class="ani-modal">
+      <button id="aniModalClose" class="ani-modal-close" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="ani-modal-top">
+        <img id="aniModalCover" class="ani-modal-cover" src="" alt="" loading="lazy">
+        <div class="ani-modal-info">
+          <div id="aniModalTitle" class="ani-modal-title"></div>
+          <div id="aniModalMeta"  class="ani-modal-meta"></div>
+          <a id="aniModalLink" class="ani-modal-link" href="#" target="_blank" rel="noopener noreferrer">
+            Voir sur AniList
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div id="aniModalSynopsis" class="ani-modal-synopsis"></div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
