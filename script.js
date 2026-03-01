@@ -5,9 +5,8 @@ const CFG = {
   anilistUser:  'Grimpeaks',
   bgImages: [
     'src/background.jpg',
-    // Ajoute tes photos ici :
-    // 'src/bg2.jpg',
-    // 'src/bg3.jpg',
+    'src/bg2.jpg',
+    'src/bg3.jpg',
   ],
   bgDelay: 8000,   // ms entre chaque changement
   bgFade:  1400,   // ms de durée du fondu
