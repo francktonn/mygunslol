@@ -402,7 +402,7 @@ const TRACKS = [
       const cls  = type === 'character' ? 'fav-cover fav-cover-sq' : 'fav-cover';
       const score = scoresMap && scoresMap.has(n.id) ? scoresMap.get(n.id) : 0;
       const scoreBadge = (score && type !== 'character')
-        ? `<div class="fav-score">★ ${(score / 10).toFixed(1)}</div>`
+        ? `<div class="fav-score">★ ${score}</div>`
         : '';
       return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
         <img class="${cls}" src="${img}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
