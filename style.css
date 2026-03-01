@@ -300,6 +300,14 @@ body {
 }
 #viewAnilist.ani-active  { display: block; }
 #viewAnilist.ani-visible { opacity: 1; }
+#viewSpotify {
+  display: none; opacity: 0;
+  transition: opacity 280ms ease;
+}
+#viewSpotify.ani-active  { display: block; }
+#viewSpotify.ani-visible { opacity: 1; }
+.sp-embed-wrap { border-radius: 12px; overflow: hidden; margin: 4px 0; }
+.sp-embed-wrap iframe { display: block; border-radius: 12px; }
 
 /* Back button */
 .back-btn {

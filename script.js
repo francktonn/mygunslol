@@ -553,6 +553,42 @@ const TRACKS = [
   });
 })();
 
+/* ── SPOTIFY VIEW SWITCH ────────────────────────────── */
+(function () {
+  const viewLinks   = document.getElementById('viewLinks');
+  const viewSpotify = document.getElementById('viewSpotify');
+  const lnkSpotify  = document.getElementById('lnkSpotify');
+  const backBtn     = document.getElementById('backBtnSpotify');
+  if (!viewLinks || !viewSpotify || !lnkSpotify || !backBtn) return;
+
+  function showSpotify() {
+    viewLinks.style.opacity = '0';
+    viewLinks.style.pointerEvents = 'none';
+    setTimeout(() => {
+      viewLinks.style.display = 'none';
+      viewSpotify.classList.add('ani-active');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        viewSpotify.classList.add('ani-visible');
+      }));
+    }, 270);
+  }
+
+  function showLinks() {
+    viewSpotify.classList.remove('ani-visible');
+    setTimeout(() => {
+      viewSpotify.classList.remove('ani-active');
+      viewLinks.style.display = '';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        viewLinks.style.opacity = '';
+        viewLinks.style.pointerEvents = '';
+      }));
+    }, 285);
+  }
+
+  lnkSpotify.addEventListener('click', e => { e.preventDefault(); showSpotify(); });
+  backBtn.addEventListener('click', showLinks);
+})();
+
 /* ── ANILIST VIEW SWITCH + TABS ─────────────────────── */
 (function () {
   const viewLinks    = document.getElementById('viewLinks');
