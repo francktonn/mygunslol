@@ -691,12 +691,27 @@ const TRACKS = [
   async function translateFR(text) {
     if (!text) return '';
     if (_cache.has(text)) return _cache.get(text);
+    /* split en morceaux de max 490 chars à la coupure de mot */
+    const MAX = 490;
+    const chunks = [];
+    let rem = text;
+    while (rem.length > MAX) {
+      let idx = rem.lastIndexOf(' ', MAX);
+      if (idx < 1) idx = MAX;
+      chunks.push(rem.slice(0, idx));
+      rem = rem.slice(idx).trimStart();
+    }
+    if (rem) chunks.push(rem);
     try {
-      const r = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 900))}&langpair=en|fr`
-      );
-      const d = await r.json();
-      const out = d.responseData?.translatedText || text;
+      const parts = [];
+      for (const chunk of chunks) {
+        const r = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|fr`
+        );
+        const d = await r.json();
+        parts.push(d.responseData?.translatedText || chunk);
+      }
+      const out = parts.join(' ');
       _cache.set(text, out);
       return out;
     } catch { return text; }
