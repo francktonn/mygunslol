@@ -154,50 +154,66 @@
             <div class="ani-view-sub">AniList</div>
           </div>
         </div>
-        <!-- Tabs -->
+        <!-- Main tabs -->
         <div class="ani-tabs">
-          <button class="ani-tab active" id="tabAnime">Anime</button>
-          <button class="ani-tab" id="tabManga">Manga</button>
+          <button class="ani-tab active" id="tabStats">Stats</button>
+          <button class="ani-tab" id="tabFavoris">Favoris</button>
         </div>
 
-        <!-- Grid Anime -->
-        <div class="ani-grid" id="gridAnime">
-          <div class="ani-box">
-            <span class="ani-val" id="aniCount">—</span>
-            <span class="ani-lbl">Animés</span>
+        <!-- Panel: Stats -->
+        <div id="panelStats">
+          <div class="ani-tabs ani-subtabs">
+            <button class="ani-tab active" id="tabAnime">Anime</button>
+            <button class="ani-tab" id="tabManga">Manga</button>
           </div>
-          <div class="ani-box">
-            <span class="ani-val" id="aniScore">—</span>
-            <span class="ani-lbl">Score moyen</span>
+          <div class="ani-grid" id="gridAnime">
+            <div class="ani-box">
+              <span class="ani-val" id="aniCount">—</span>
+              <span class="ani-lbl">Animés</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="aniScore">—</span>
+              <span class="ani-lbl">Score moyen</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="aniEps">—</span>
+              <span class="ani-lbl">Épisodes</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="aniDays">—</span>
+              <span class="ani-lbl">Jours</span>
+            </div>
           </div>
-          <div class="ani-box">
-            <span class="ani-val" id="aniEps">—</span>
-            <span class="ani-lbl">Épisodes</span>
-          </div>
-          <div class="ani-box">
-            <span class="ani-val" id="aniDays">—</span>
-            <span class="ani-lbl">Jours</span>
+          <div class="ani-grid" id="gridManga" style="display:none">
+            <div class="ani-box">
+              <span class="ani-val" id="mangaCount">—</span>
+              <span class="ani-lbl">Mangas</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="mangaScore">—</span>
+              <span class="ani-lbl">Score moyen</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="mangaChaps">—</span>
+              <span class="ani-lbl">Chapitres</span>
+            </div>
+            <div class="ani-box">
+              <span class="ani-val" id="mangaVols">—</span>
+              <span class="ani-lbl">Volumes</span>
+            </div>
           </div>
         </div>
 
-        <!-- Grid Manga -->
-        <div class="ani-grid" id="gridManga" style="display:none">
-          <div class="ani-box">
-            <span class="ani-val" id="mangaCount">—</span>
-            <span class="ani-lbl">Mangas</span>
+        <!-- Panel: Favoris -->
+        <div id="panelFavoris" style="display:none">
+          <div class="ani-tabs ani-subtabs">
+            <button class="ani-tab active" id="favTabAnime">Anime</button>
+            <button class="ani-tab" id="favTabManga">Manga</button>
+            <button class="ani-tab" id="favTabChara">Perso</button>
           </div>
-          <div class="ani-box">
-            <span class="ani-val" id="mangaScore">—</span>
-            <span class="ani-lbl">Score moyen</span>
-          </div>
-          <div class="ani-box">
-            <span class="ani-val" id="mangaChaps">—</span>
-            <span class="ani-lbl">Chapitres</span>
-          </div>
-          <div class="ani-box">
-            <span class="ani-val" id="mangaVols">—</span>
-            <span class="ani-lbl">Volumes</span>
-          </div>
+          <div class="fav-scroll" id="favAnime"></div>
+          <div class="fav-scroll" id="favManga" style="display:none"></div>
+          <div class="fav-scroll" id="favChara" style="display:none"></div>
         </div>
         <a href="https://anilist.co/user/Grimpeaks/" class="ani-cta" target="_blank" rel="noopener noreferrer">
           Voir le profil

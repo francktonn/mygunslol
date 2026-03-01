@@ -343,10 +343,47 @@ const TRACKS = [
 
 /* ── ANILIST API ────────────────────────────────────── */
 (function () {
-  const q = `{ User(name: "${CFG.anilistUser}") { statistics {
-    anime { count meanScore episodesWatched minutesWatched }
-    manga { count meanScore chaptersRead volumesRead }
-  } } }`;
+  const q = `{ User(name: "${CFG.anilistUser}") {
+    statistics {
+      anime { count meanScore episodesWatched minutesWatched }
+      manga { count meanScore chaptersRead volumesRead }
+    }
+    favourites {
+      anime      { nodes { id title { romaji english } coverImage { medium } } }
+      manga      { nodes { id title { romaji english } coverImage { medium } } }
+      characters { nodes { id name { full } image { medium } } }
+    }
+  } }`;
+
+  /* pre-fill fav containers with a loading pulse */
+  ['favAnime','favManga','favChara'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="fav-empty">Chargement…</div>';
+  });
+
+  function renderFavs(nodes, containerId, type) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!nodes || nodes.length === 0) {
+      el.innerHTML = '<div class="fav-empty">Aucun favori</div>';
+      return;
+    }
+    el.innerHTML = nodes.map(n => {
+      const img  = type === 'character' ? n.image.medium : n.coverImage.medium;
+      const name = type === 'character'
+        ? n.name.full
+        : (n.title.romaji || n.title.english || '');
+      const url  = type === 'anime'     ? `https://anilist.co/anime/${n.id}`
+                 : type === 'manga'     ? `https://anilist.co/manga/${n.id}`
+                 :                        `https://anilist.co/character/${n.id}`;
+      const cls  = type === 'character' ? 'fav-cover fav-cover-sq' : 'fav-cover';
+      return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
+        <img class="${cls}" src="${img}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
+        <div class="fav-name">${name}</div>
+      </a>`;
+    }).join('');
+  }
+
   fetch('https://graphql.anilist.co', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -358,7 +395,7 @@ const TRACKS = [
     const a = s.anime;
     const m = s.manga;
 
-    /* anime */
+    /* stats — anime */
     const aScore = a.meanScore ? (a.meanScore / 10).toFixed(1) : '—';
     const aEps   = a.episodesWatched >= 1000
       ? (a.episodesWatched / 1000).toFixed(1) + 'k'
@@ -371,7 +408,7 @@ const TRACKS = [
     document.getElementById('aniEps').textContent   = aEps;
     document.getElementById('aniDays').textContent  = aDays;
 
-    /* manga */
+    /* stats — manga */
     const mScore = m.meanScore ? (m.meanScore / 10).toFixed(1) : '—';
     const mChaps = m.chaptersRead >= 1000
       ? (m.chaptersRead / 1000).toFixed(1) + 'k'
@@ -380,20 +417,27 @@ const TRACKS = [
     document.getElementById('mangaScore').textContent = mScore;
     document.getElementById('mangaChaps').textContent = mChaps;
     document.getElementById('mangaVols').textContent  = m.volumesRead;
+
+    /* favourites */
+    const f = d.data.User.favourites;
+    renderFavs(f.anime.nodes,      'favAnime', 'anime');
+    renderFavs(f.manga.nodes,      'favManga', 'manga');
+    renderFavs(f.characters.nodes, 'favChara', 'character');
   })
-  .catch(() => {});
+  .catch(() => {
+    ['favAnime','favManga','favChara'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<div class="fav-empty">Erreur de chargement</div>';
+    });
+  });
 })();
 
 /* ── ANILIST VIEW SWITCH + TABS ─────────────────────── */
 (function () {
-  const viewLinks   = document.getElementById('viewLinks');
-  const viewAnilist = document.getElementById('viewAnilist');
-  const lnkAnilist  = document.getElementById('lnkAnilist');
-  const backBtn     = document.getElementById('backBtn');
-  const tabAnime    = document.getElementById('tabAnime');
-  const tabManga    = document.getElementById('tabManga');
-  const gridAnime   = document.getElementById('gridAnime');
-  const gridManga   = document.getElementById('gridManga');
+  const viewLinks    = document.getElementById('viewLinks');
+  const viewAnilist  = document.getElementById('viewAnilist');
+  const lnkAnilist   = document.getElementById('lnkAnilist');
+  const backBtn      = document.getElementById('backBtn');
   if (!viewLinks || !viewAnilist || !lnkAnilist || !backBtn) return;
 
   /* ── view transitions ── */
@@ -421,16 +465,16 @@ const TRACKS = [
     }, 285);
   }
 
-  lnkAnilist.addEventListener('click', e => {
-    e.preventDefault();
-    showAnilist();
-  });
+  lnkAnilist.addEventListener('click', e => { e.preventDefault(); showAnilist(); });
   backBtn.addEventListener('click', showLinks);
 
-  /* ── tab switching ── */
-  function switchGrid(showAnime) {
-    const hide = showAnime ? gridManga : gridAnime;
-    const show = showAnime ? gridAnime : gridManga;
+  /* ── main tabs: Stats / Favoris ── */
+  const tabStats     = document.getElementById('tabStats');
+  const tabFavoris   = document.getElementById('tabFavoris');
+  const panelStats   = document.getElementById('panelStats');
+  const panelFavoris = document.getElementById('panelFavoris');
+
+  function fadeSwap(hide, show) {
     hide.style.opacity = '0';
     setTimeout(() => {
       hide.style.display = 'none';
@@ -439,21 +483,54 @@ const TRACKS = [
       requestAnimationFrame(() => requestAnimationFrame(() => {
         show.style.opacity = '1';
       }));
-    }, 185);
+    }, 180);
   }
+
+  tabStats.addEventListener('click', () => {
+    if (tabStats.classList.contains('active')) return;
+    tabStats.classList.add('active');
+    tabFavoris.classList.remove('active');
+    fadeSwap(panelFavoris, panelStats);
+  });
+  tabFavoris.addEventListener('click', () => {
+    if (tabFavoris.classList.contains('active')) return;
+    tabFavoris.classList.add('active');
+    tabStats.classList.remove('active');
+    fadeSwap(panelStats, panelFavoris);
+  });
+
+  /* ── stats subtabs: Anime / Manga ── */
+  const tabAnime  = document.getElementById('tabAnime');
+  const tabManga  = document.getElementById('tabManga');
+  const gridAnime = document.getElementById('gridAnime');
+  const gridManga = document.getElementById('gridManga');
 
   tabAnime.addEventListener('click', () => {
     if (tabAnime.classList.contains('active')) return;
     tabAnime.classList.add('active');
     tabManga.classList.remove('active');
-    switchGrid(true);
+    fadeSwap(gridManga, gridAnime);
   });
-
   tabManga.addEventListener('click', () => {
     if (tabManga.classList.contains('active')) return;
     tabManga.classList.add('active');
     tabAnime.classList.remove('active');
-    switchGrid(false);
+    fadeSwap(gridAnime, gridManga);
+  });
+
+  /* ── fav subtabs: Anime / Manga / Perso ── */
+  const favTabs    = ['favTabAnime','favTabManga','favTabChara'].map(id => document.getElementById(id));
+  const favPanels  = ['favAnime',   'favManga',   'favChara'  ].map(id => document.getElementById(id));
+
+  favTabs.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) return;
+      favTabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const current = favPanels.find(p => p.style.display !== 'none');
+      if (current) fadeSwap(current, favPanels[i]);
+      else { favPanels[i].style.display = ''; favPanels[i].style.opacity = '1'; }
+    });
   });
 })();
 
