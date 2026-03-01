@@ -534,6 +534,36 @@ const TRACKS = [
   });
 })();
 
+/* ── FAV SCROLL DESKTOP ──────────────────────────────── */
+(function () {
+  document.querySelectorAll('.fav-scroll').forEach(el => {
+    el.addEventListener('wheel', e => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY * 0.9;
+    }, { passive: false });
+
+    let down = false, startX = 0, startScroll = 0, moved = false;
+    el.addEventListener('mousedown', e => {
+      down = true; moved = false;
+      startX = e.clientX; startScroll = el.scrollLeft;
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      if (moved) el.scrollLeft = startScroll - dx;
+    });
+
+    window.addEventListener('mouseup', () => { down = false; });
+
+    el.addEventListener('click', e => {
+      if (moved) { e.preventDefault(); moved = false; }
+    }, true);
+  });
+})();
+
 /* ── TRACK PANEL ─────────────────────────────────────── */
 (function () {
   const plArt   = document.getElementById('plArt');
