@@ -32,6 +32,7 @@ body {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: url('src/background.jpg') center / cover no-repeat;
   filter: brightness(0.35) blur(1px);
+  transition: opacity 1.4s ease;
 }
 
 /* ── BACKGROUND ─────────────────────────────────────── */

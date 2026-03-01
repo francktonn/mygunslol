@@ -3,6 +3,14 @@ const CFG = {
   bioText:      'Les liens utiles',
   discordTag:   'grimpeaks.',
   anilistUser:  'Grimpeaks',
+  bgImages: [
+    'src/background.jpg',
+    // Ajoute tes photos ici :
+    // 'src/bg2.jpg',
+    // 'src/bg3.jpg',
+  ],
+  bgDelay: 8000,   // ms entre chaque changement
+  bgFade:  1400,   // ms de durée du fondu
 };
 
 /* ── TRACKS ─────────────────────────────────────────── */
@@ -28,6 +36,31 @@ const TRACKS = [
     `;
     c.appendChild(p);
   }
+})();
+
+/* ── BACKGROUND SLIDESHOW ───────────────────────────── */
+(function () {
+  const imgs = (CFG.bgImages || []).filter(Boolean);
+  if (imgs.length < 2) return;
+  const el = document.getElementById('bg-img');
+  if (!el) return;
+
+  const delay = CFG.bgDelay || 8000;
+  const fade  = CFG.bgFade  || 1400;
+  let idx = 0;
+
+  function preload(src) { const i = new Image(); i.src = src; }
+  preload(imgs[1]);
+
+  setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      idx = (idx + 1) % imgs.length;
+      el.style.backgroundImage = `url('${imgs[idx]}')`;
+      preload(imgs[(idx + 1) % imgs.length]);
+      el.style.opacity = '1';
+    }, fade);
+  }, delay);
 })();
 
 /* ── TOAST ──────────────────────────────────────────── */
