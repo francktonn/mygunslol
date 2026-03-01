@@ -7,6 +7,10 @@ const CFG = {
     'src/background.jpg',
     'src/bg2.jpg',
     'src/bg3.jpg',
+    'src/bg4.jpg',
+    'src/bg5.jpg',
+    'src/bg6.jpg',
+    'src/bg7.jpg',
   ],
   bgDelay: 8000,   // ms entre chaque changement
   bgFade:  1400,   // ms de durée du fondu
