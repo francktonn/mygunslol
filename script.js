@@ -343,25 +343,48 @@ const TRACKS = [
 
 /* ── ANILIST API ────────────────────────────────────── */
 (function () {
-  const q = `{ User(name: "${CFG.anilistUser}") {
-    statistics {
-      anime { count meanScore episodesWatched minutesWatched }
-      manga { count meanScore chaptersRead volumesRead }
+  const q = `{
+    User(name: "${CFG.anilistUser}") {
+      statistics {
+        anime { count meanScore episodesWatched minutesWatched }
+        manga { count meanScore chaptersRead volumesRead }
+      }
+      favourites {
+        anime      { nodes { id title { romaji english } coverImage { medium } } }
+        manga      { nodes { id title { romaji english } coverImage { medium } } }
+        characters { nodes { id name { full } image { medium } } }
+      }
     }
-    favourites {
-      anime      { nodes { id title { romaji english } coverImage { medium } } }
-      manga      { nodes { id title { romaji english } coverImage { medium } } }
-      characters { nodes { id name { full } image { medium } } }
+    currentAnime: MediaListCollection(userName: "${CFG.anilistUser}", type: ANIME, status: CURRENT) {
+      lists { entries { media { id title { romaji english } coverImage { medium } } progress } }
     }
-  } }`;
+    currentManga: MediaListCollection(userName: "${CFG.anilistUser}", type: MANGA, status: CURRENT) {
+      lists { entries { media { id title { romaji english } coverImage { medium } } progress } }
+    }
+    allAnimeScores: MediaListCollection(userName: "${CFG.anilistUser}", type: ANIME) {
+      lists { entries { mediaId score } }
+    }
+    allMangaScores: MediaListCollection(userName: "${CFG.anilistUser}", type: MANGA) {
+      lists { entries { mediaId score } }
+    }
+  }`;
 
-  /* pre-fill fav containers with a loading pulse */
-  ['favAnime','favManga','favChara'].forEach(id => {
+  /* pre-fill containers with loading text */
+  ['favAnime','favManga','favChara','curAnime','curManga'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '<div class="fav-empty">Chargement…</div>';
   });
 
-  function renderFavs(nodes, containerId, type) {
+  function buildScoreMap(collection) {
+    const map = new Map();
+    if (!collection) return map;
+    collection.lists.forEach(list =>
+      list.entries.forEach(e => { if (e.score) map.set(e.mediaId, e.score); })
+    );
+    return map;
+  }
+
+  function renderFavs(nodes, containerId, type, scoresMap) {
     const el = document.getElementById(containerId);
     if (!el) return;
     if (!nodes || nodes.length === 0) {
@@ -377,8 +400,33 @@ const TRACKS = [
                  : type === 'manga'     ? `https://anilist.co/manga/${n.id}`
                  :                        `https://anilist.co/character/${n.id}`;
       const cls  = type === 'character' ? 'fav-cover fav-cover-sq' : 'fav-cover';
+      const score = scoresMap && scoresMap.has(n.id) ? scoresMap.get(n.id) : 0;
+      const scoreBadge = (score && type !== 'character')
+        ? `<div class="fav-score">★ ${(score / 10).toFixed(1)}</div>`
+        : '';
       return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
         <img class="${cls}" src="${img}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
+        ${scoreBadge}
+        <div class="fav-name">${name}</div>
+      </a>`;
+    }).join('');
+  }
+
+  function renderCurrent(entries, containerId, type) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!entries || entries.length === 0) {
+      el.innerHTML = '<div class="fav-empty">Rien en cours</div>';
+      return;
+    }
+    el.innerHTML = entries.map(e => {
+      const m    = e.media;
+      const name = m.title.romaji || m.title.english || '';
+      const url  = `https://anilist.co/${type}/${m.id}`;
+      const prog = type === 'anime' ? `Ép. ${e.progress}` : `Ch. ${e.progress}`;
+      return `<a href="${url}" class="fav-card" target="_blank" rel="noopener noreferrer" title="${name}">
+        <img class="fav-cover" src="${m.coverImage.medium}" alt="${name}" loading="lazy" onerror="this.style.opacity='.25'">
+        <div class="fav-prog">${prog}</div>
         <div class="fav-name">${name}</div>
       </a>`;
     }).join('');
@@ -418,14 +466,21 @@ const TRACKS = [
     document.getElementById('mangaChaps').textContent = mChaps;
     document.getElementById('mangaVols').textContent  = m.volumesRead;
 
-    /* favourites */
+    /* favourites with scores */
+    const animeScoreMap = buildScoreMap(d.data.allAnimeScores);
+    const mangaScoreMap = buildScoreMap(d.data.allMangaScores);
     const f = d.data.User.favourites;
-    renderFavs(f.anime.nodes,      'favAnime', 'anime');
-    renderFavs(f.manga.nodes,      'favManga', 'manga');
-    renderFavs(f.characters.nodes, 'favChara', 'character');
+    renderFavs(f.anime.nodes,      'favAnime', 'anime',      animeScoreMap);
+    renderFavs(f.manga.nodes,      'favManga', 'manga',      mangaScoreMap);
+    renderFavs(f.characters.nodes, 'favChara', 'character',  null);
+
+    /* currently watching/reading */
+    const flatEntries = col => col ? col.lists.flatMap(l => l.entries) : [];
+    renderCurrent(flatEntries(d.data.currentAnime), 'curAnime', 'anime');
+    renderCurrent(flatEntries(d.data.currentManga), 'curManga', 'manga');
   })
   .catch(() => {
-    ['favAnime','favManga','favChara'].forEach(id => {
+    ['favAnime','favManga','favChara','curAnime','curManga'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = '<div class="fav-empty">Erreur de chargement</div>';
     });
@@ -468,11 +523,9 @@ const TRACKS = [
   lnkAnilist.addEventListener('click', e => { e.preventDefault(); showAnilist(); });
   backBtn.addEventListener('click', showLinks);
 
-  /* ── main tabs: Stats / Favoris ── */
-  const tabStats     = document.getElementById('tabStats');
-  const tabFavoris   = document.getElementById('tabFavoris');
-  const panelStats   = document.getElementById('panelStats');
-  const panelFavoris = document.getElementById('panelFavoris');
+  /* ── main tabs: Stats / En cours / Favoris ── */
+  const mainTabs   = ['tabStats','tabEnCours','tabFavoris'].map(id => document.getElementById(id));
+  const mainPanels = ['panelStats','panelEnCours','panelFavoris'].map(id => document.getElementById(id));
 
   function fadeSwap(hide, show) {
     hide.style.opacity = '0';
@@ -486,17 +539,15 @@ const TRACKS = [
     }, 180);
   }
 
-  tabStats.addEventListener('click', () => {
-    if (tabStats.classList.contains('active')) return;
-    tabStats.classList.add('active');
-    tabFavoris.classList.remove('active');
-    fadeSwap(panelFavoris, panelStats);
-  });
-  tabFavoris.addEventListener('click', () => {
-    if (tabFavoris.classList.contains('active')) return;
-    tabFavoris.classList.add('active');
-    tabStats.classList.remove('active');
-    fadeSwap(panelStats, panelFavoris);
+  mainTabs.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) return;
+      mainTabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const current = mainPanels.find(p => p.style.display !== 'none');
+      if (current) fadeSwap(current, mainPanels[i]);
+      else { mainPanels[i].style.display = ''; mainPanels[i].style.opacity = '1'; }
+    });
   });
 
   /* ── stats subtabs: Anime / Manga ── */
@@ -516,6 +567,21 @@ const TRACKS = [
     tabManga.classList.add('active');
     tabAnime.classList.remove('active');
     fadeSwap(gridAnime, gridManga);
+  });
+
+  /* ── en cours subtabs: Anime / Manga ── */
+  const curTabs   = ['curTabAnime','curTabManga'].map(id => document.getElementById(id));
+  const curPanels = ['curAnime',   'curManga'   ].map(id => document.getElementById(id));
+
+  curTabs.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) return;
+      curTabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const current = curPanels.find(p => p.style.display !== 'none');
+      if (current) fadeSwap(current, curPanels[i]);
+      else { curPanels[i].style.display = ''; curPanels[i].style.opacity = '1'; }
+    });
   });
 
   /* ── fav subtabs: Anime / Manga / Perso ── */

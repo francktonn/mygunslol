@@ -157,6 +157,7 @@
         <!-- Main tabs -->
         <div class="ani-tabs">
           <button class="ani-tab active" id="tabStats">Stats</button>
+          <button class="ani-tab" id="tabEnCours">En cours</button>
           <button class="ani-tab" id="tabFavoris">Favoris</button>
         </div>
 
@@ -202,6 +203,16 @@
               <span class="ani-lbl">Volumes</span>
             </div>
           </div>
+        </div>
+
+        <!-- Panel: En cours -->
+        <div id="panelEnCours" style="display:none">
+          <div class="ani-tabs ani-subtabs">
+            <button class="ani-tab active" id="curTabAnime">Anime</button>
+            <button class="ani-tab" id="curTabManga">Manga</button>
+          </div>
+          <div class="fav-scroll" id="curAnime"></div>
+          <div class="fav-scroll" id="curManga" style="display:none"></div>
         </div>
 
         <!-- Panel: Favoris -->
